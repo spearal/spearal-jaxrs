@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.spearal.jaxrs.impl;
+package org.spearal.jaxrs.providers;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,9 +26,12 @@ import javax.ws.rs.container.ContainerResponseFilter;
 
 import org.spearal.SpearalFactory;
 import org.spearal.jaxrs.Spearal;
-import org.spearal.jaxrs.helper.PropertyFilters;
+import org.spearal.jaxrs.filter.PropertyFilterBuilder;
+import org.spearal.jaxrs.impl.PartialEntityWrapper;
 
 /**
+ * JAX-RS server response filter
+ * 
  * @author William DRAI
  */
 public class SpearalContainerResponseFilter implements ContainerResponseFilter {
@@ -44,7 +47,8 @@ public class SpearalContainerResponseFilter implements ContainerResponseFilter {
 		if (headers == null || headers.isEmpty())
 			return;
 		
-		PropertyFilters serverPropertyFilters = PropertyFilters.fromHeaders(factory.getContext(), headers);
+		// Wrap entity to store property filters
+		PropertyFilterBuilder serverPropertyFilters = PropertyFilterBuilder.fromHeaders(factory.getContext(), headers);
 		responseContext.setEntity(new PartialEntityWrapper(responseContext.getEntity(), serverPropertyFilters));
 	}
 }

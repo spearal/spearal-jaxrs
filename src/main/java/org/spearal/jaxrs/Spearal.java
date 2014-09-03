@@ -20,6 +20,8 @@ package org.spearal.jaxrs;
 import javax.ws.rs.core.MediaType;
 
 /**
+ * Spearal constants
+ * 
  * @author William DRAI
  */
 public class Spearal {

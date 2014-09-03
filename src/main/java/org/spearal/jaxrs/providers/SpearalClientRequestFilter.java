@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.spearal.jaxrs.impl;
+package org.spearal.jaxrs.providers;
 
 import java.io.IOException;
 
@@ -24,9 +24,12 @@ import javax.ws.rs.client.ClientRequestFilter;
 
 import org.spearal.SpearalFactory;
 import org.spearal.jaxrs.Spearal;
-import org.spearal.jaxrs.helper.PropertyFilters;
+import org.spearal.jaxrs.filter.PropertyFilterBuilder;
+import org.spearal.jaxrs.impl.PartialEntityWrapper;
 
 /**
+ * JAX-RS client request filter
+ * 
  * @author William DRAI
  */
 public class SpearalClientRequestFilter implements ClientRequestFilter {
@@ -38,11 +41,13 @@ public class SpearalClientRequestFilter implements ClientRequestFilter {
 	}
 	
 	public void filter(ClientRequestContext requestContext) throws IOException {
-		PropertyFilters clientPropertyFilters = (PropertyFilters)requestContext.getProperty(PropertyFilters.CLIENT);
+		// Wrap entity to store property filters
+		PropertyFilterBuilder clientPropertyFilters = (PropertyFilterBuilder)requestContext.getProperty(PropertyFilterBuilder.CLIENT);
 		if (clientPropertyFilters != null)
 			requestContext.setEntity(new PartialEntityWrapper(requestContext.getEntity(), clientPropertyFilters));
 		
-		PropertyFilters serverPropertyFilters = (PropertyFilters)requestContext.getProperty(PropertyFilters.SERVER);
+		// Transmit server property filters as http header
+		PropertyFilterBuilder serverPropertyFilters = (PropertyFilterBuilder)requestContext.getProperty(PropertyFilterBuilder.SERVER);
 		if (serverPropertyFilters != null)
 			requestContext.getHeaders().put(Spearal.PROPERTY_FILTER_HEADER, serverPropertyFilters.toHeaders(factory.getContext()));
 	}

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.spearal.jaxrs.helper;
+package org.spearal.jaxrs.filter;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -28,40 +28,69 @@ import org.spearal.SpearalPropertyFilter;
 import org.spearal.impl.util.ClassDescriptionUtil;
 
 /**
+ * Utility class to build property filters
+ * 
  * @author William DRAI
  */
-public class PropertyFilters {
+public class PropertyFilterBuilder {
 	
 	public static final String CLIENT = "org.spearal.jaxrs.Client";
 	public static final String SERVER = "org.spearal.jaxrs.Server";
 	
-	private final Map<Class<?>, String[]> propertyFilters = new LinkedHashMap<Class<?>, String[]>();
+	private final Map<Class<?>, String[]> propertyFiltersByClass = new LinkedHashMap<Class<?>, String[]>();
 	
-	public static PropertyFilters of(Class<?> entityClass, String... propertyNames) {
-		PropertyFilters propertyFilter = new PropertyFilters();
+	/**
+	 * Init a filter instance for the properties of the specified class
+	 * @param entityClass entity class
+	 * @param propertyNames name
+	 * @return property filter builder
+	 */
+	public static PropertyFilterBuilder of(Class<?> entityClass, String... propertyNames) {
+		PropertyFilterBuilder propertyFilter = new PropertyFilterBuilder();
 		return propertyFilter.and(entityClass, propertyNames);
 	}
 	
-	public PropertyFilters and(Class<?> entityClass, String... propertyNames) {
-		propertyFilters.put(entityClass, propertyNames);
+	/**
+	 * Append properties of the specified class to the current filter
+	 * @param entityClass entity class
+	 * @param propertyNames name
+	 * @return property filter builder
+	 */
+	public PropertyFilterBuilder and(Class<?> entityClass, String... propertyNames) {
+		propertyFiltersByClass.put(entityClass, propertyNames);
 		return this;
 	}
 	
+	/**
+	 * Apply the current filters to the specified SpearalPropertyFilter
+	 * @param propertyFilter Spearal property filter
+	 */
 	public void apply(SpearalPropertyFilter propertyFilter) {
-		for (Entry<Class<?>, String[]> pf : propertyFilters.entrySet()) {
+		for (Entry<Class<?>, String[]> pf : propertyFiltersByClass.entrySet()) {
 			propertyFilter.add(pf.getKey(), pf.getValue());
 		}
 	}
 	
+	/**
+	 * Convert the current filters to a String representation for use in a http header
+	 * @param context context 
+	 * @return list of strings
+	 */
 	public List<Object> toHeaders(SpearalContext context) {
 		List<Object> headers = new ArrayList<Object>();
-		for (Entry<Class<?>, String[]> pf : propertyFilters.entrySet())
+		for (Entry<Class<?>, String[]> pf : propertyFiltersByClass.entrySet())
 			headers.add(ClassDescriptionUtil.createAliasedDescription(context, pf.getKey(), pf.getValue()));		
 		return headers;
 	}
 	
-	public static PropertyFilters fromHeaders(SpearalContext context, List<String> headers) {
-		PropertyFilters propertyFilters = null;
+	/**
+	 * Convert String representations of filters to a builder
+	 * @param context context
+	 * @param headers list of headers (for example coming from http)
+	 * @return property filter builder
+	 */
+	public static PropertyFilterBuilder fromHeaders(SpearalContext context, List<String> headers) {
+		PropertyFilterBuilder propertyFilters = null;
 		for (String header : headers) {
 			String classNames = ClassDescriptionUtil.classNames(header);
 			Class<?> filterClass = context.loadClass(classNames, null);

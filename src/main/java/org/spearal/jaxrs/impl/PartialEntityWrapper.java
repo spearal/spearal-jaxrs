@@ -17,18 +17,24 @@
  */
 package org.spearal.jaxrs.impl;
 
-import org.spearal.jaxrs.helper.PropertyFilters;
+import java.io.Serializable;
+
+import org.spearal.jaxrs.filter.PropertyFilterBuilder;
 
 /**
+ * Internal wrapper to transmit property filters between request/response filters and message body reader/writer
+ * 
  * @author William DRAI
  */
-public class PartialEntityWrapper {
+public class PartialEntityWrapper implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	private final Object entity;
-	private final PropertyFilters propertyFilter;
+	private transient final PropertyFilterBuilder propertyFilter;
 	
 	
-	public PartialEntityWrapper(Object entity, PropertyFilters propertyFilter) {
+	public PartialEntityWrapper(Object entity, PropertyFilterBuilder propertyFilter) {
 		this.entity = entity;
 		this.propertyFilter = propertyFilter;
 	}
@@ -37,7 +43,7 @@ public class PartialEntityWrapper {
 		return entity;
 	}
 	
-	public PropertyFilters getPropertyFilter() {
+	public PropertyFilterBuilder getPropertyFilter() {
 		return propertyFilter;
 	}
 }

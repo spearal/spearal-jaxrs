@@ -39,10 +39,11 @@ jar {
 
 dependencies {
     
-    compile "org.spearal:spearal-java:${spearalVersion}"
     compile 'org.javassist:javassist:3.18.2-GA'
-    compile 'org.jboss.resteasy:jaxrs-api:3.0.8.Final'
-    
+    compile 'org.jboss.resteasy:jaxrs-api:3.0.8.Final'	
+	compile 'org.jboss.spec.javax.servlet:jboss-servlet-api_3.0_spec:1.0.2.Final'
+	compile "org.spearal:spearal-java:${spearalVersion}"
+	
     testCompile 'junit:junit:4.11'
     
     testRuntime 'com.h2database:h2:1.4.179'
