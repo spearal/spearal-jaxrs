@@ -29,5 +29,8 @@ public class Spearal {
 	public final static String APPLICATION_SPEARAL = "application/spearal";
 	public final static MediaType APPLICATION_SPEARAL_TYPE = new MediaType("application", "spearal");
 	
-	public final static String PROPERTY_FILTER_HEADER = "Spearal-Filter";
+	public final static String PROPERTY_FILTER_HEADER = "Spearal-PropertyFilter";
+	
+	public static final String PROPERTY_FILTER_CLIENT = "spearalClientPropertyFilter";
+	public static final String PROPERTY_FILTER_SERVER = "spearalServerPropertyFilter";
 }

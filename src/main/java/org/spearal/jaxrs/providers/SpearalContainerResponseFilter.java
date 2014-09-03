@@ -25,8 +25,8 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 
 import org.spearal.SpearalFactory;
+import org.spearal.filter.SpearalPropertyFilterBuilder;
 import org.spearal.jaxrs.Spearal;
-import org.spearal.jaxrs.filter.PropertyFilterBuilder;
 import org.spearal.jaxrs.impl.PartialEntityWrapper;
 
 /**
@@ -48,7 +48,7 @@ public class SpearalContainerResponseFilter implements ContainerResponseFilter {
 			return;
 		
 		// Wrap entity to store property filters
-		PropertyFilterBuilder serverPropertyFilters = PropertyFilterBuilder.fromHeaders(factory.getContext(), headers);
+		SpearalPropertyFilterBuilder serverPropertyFilters = SpearalPropertyFilterBuilder.fromHeaders(factory.getContext(), headers);
 		responseContext.setEntity(new PartialEntityWrapper(responseContext.getEntity(), serverPropertyFilters));
 	}
 }

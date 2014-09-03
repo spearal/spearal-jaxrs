@@ -20,7 +20,6 @@ package org.spearal.jaxrs.providers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
@@ -54,13 +53,13 @@ public class SpearalMessageBodyIO implements MessageBodyWriter<Object>, MessageB
 	}
 	
 	public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-		return PartialEntityWrapper.class == type || (Serializable.class.isAssignableFrom(type) && mediaType.equals(Spearal.APPLICATION_SPEARAL_TYPE));
+		return PartialEntityWrapper.class == type || mediaType.equals(Spearal.APPLICATION_SPEARAL_TYPE);
 	}
 	
 	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-		return Serializable.class.isAssignableFrom(type) && mediaType.equals(Spearal.APPLICATION_SPEARAL_TYPE);
+		return mediaType.equals(Spearal.APPLICATION_SPEARAL_TYPE);
 	}
-
+	
 	public long getSize(Object obj, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
 		return 0;
 	}
