@@ -17,11 +17,12 @@
  */
 package org.spearal.jaxrs;
 
-import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
+import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
+import javax.ws.rs.ext.Providers;
 
 import org.spearal.SpearalFactory;
 import org.spearal.configuration.Configurable;
@@ -37,31 +38,28 @@ import org.spearal.jaxrs.providers.SpearalMessageBodyIO;
 public class SpearalServletFeature implements Feature {
 	
 	@Context
-	private ServletContext servletContext;
+	private Providers providers;
 	
 	private SpearalFactory spearalFactory = null;
 	
 	
 	public boolean configure(FeatureContext context) {
 		// Lookup SpearalFactory in the JAX-RS context
-		for (Object instance : context.getConfiguration().getInstances()) {
-			if (instance instanceof SpearalFactory) {
-				spearalFactory = (SpearalFactory)instance;
-				break;
+		ContextResolver<SpearalFactory> resolver = providers.getContextResolver(SpearalFactory.class, Spearal.APPLICATION_SPEARAL_TYPE);
+		if (resolver != null)
+			spearalFactory = resolver.getContext(SpearalFactory.class);
+		
+		if (spearalFactory == null) {
+			for (Object instance : context.getConfiguration().getInstances()) {
+				if (instance instanceof SpearalFactory) {
+					spearalFactory = (SpearalFactory)instance;
+					break;
+				}
 			}
 		}
 		
-		if (spearalFactory == null) {
-			// If not found, lookup factory in the servlet context
-			String key = SpearalFactory.class.getName();
-			if (servletContext.getInitParameter("spearalFactoryKey") != null)
-				key = servletContext.getInitParameter("spearalFactoryKey");
-			
-			spearalFactory = (SpearalFactory)servletContext.getAttribute(key);
-		}
-		
 		if (spearalFactory == null)
-			throw new RuntimeException("SpearalFactory not found in JAX-RS or Servlet context");
+			throw new RuntimeException("SpearalFactory not found in JAX-RS context");
 		
 		for (Object instance : context.getConfiguration().getInstances()) {
 			if (instance instanceof Configurable)
