@@ -17,7 +17,12 @@
  */
 package org.spearal.jaxrs;
 
+import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Providers;
+
+import org.spearal.SpearalFactory;
 
 /**
  * Spearal constants
@@ -33,4 +38,18 @@ public class Spearal {
 	
 	public static final String PROPERTY_FILTER_CLIENT = "spearalClientPropertyFilter";
 	public static final String PROPERTY_FILTER_SERVER = "spearalServerPropertyFilter";
+	
+	
+	public static SpearalFactory locateFactory(Configuration configuration, Providers providers) {
+		ContextResolver<SpearalFactory> resolver = providers.getContextResolver(SpearalFactory.class, APPLICATION_SPEARAL_TYPE);
+		if (resolver != null)
+			return resolver.getContext(SpearalFactory.class);
+		
+		for (Object instance : configuration.getInstances()) {
+			if (instance instanceof SpearalFactory)
+				return (SpearalFactory)instance;
+		}
+		
+		throw new RuntimeException("Could not locate SpearalFactory in JAX-RS context");
+	}
 }

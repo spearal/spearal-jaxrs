@@ -15,32 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.spearal.jaxrs.cdi;
+package org.spearal.jaxrs;
 
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.ws.rs.Produces;
-import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.core.Feature;
+import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
 
-import org.spearal.SpearalFactory;
-import org.spearal.jaxrs.Spearal;
+import org.spearal.jaxrs.providers.SpearalContainerResponseFilter;
+import org.spearal.jaxrs.providers.SpearalMessageBodyIO;
 
 /**
- * CDI resolver for SpearalFactory 
+ * Implements the server-side Spearal JAX-RS feature for use in Servlet containers
  * 
  * @author William DRAI
  */
 @Provider
-@Produces({ Spearal.APPLICATION_SPEARAL })
-public class SpearalFactoryContextResolver implements ContextResolver<SpearalFactory> {
+public class SpearalServerFeature implements Feature {
 	
-	@Inject
-	private Instance<SpearalFactory> spearalFactory;
-	
-	public SpearalFactory getContext(Class<?> clazz) {
-		if (clazz.equals(SpearalFactory.class) && !spearalFactory.isUnsatisfied())
-			return spearalFactory.get();
-		return null;
+	public boolean configure(FeatureContext context) {
+		
+		// Register the message body reader/writer
+		context.register(new SpearalMessageBodyIO());
+		
+		context.register(new SpearalContainerResponseFilter());
+		
+		return true;
 	}
 }

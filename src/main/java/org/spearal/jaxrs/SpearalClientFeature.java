@@ -33,9 +33,10 @@ import org.spearal.jaxrs.providers.SpearalMessageBodyIO;
  */
 public class SpearalClientFeature implements Feature {
 	
-	private SpearalFactory spearalFactory = null;
-	
 	public boolean configure(FeatureContext context) {
+		
+		SpearalFactory spearalFactory = null;
+		
 		// Retrieve or create a SpearalFactory in the JAX-RS context
 		for (Object instance : context.getConfiguration().getInstances()) {
 			if (instance instanceof SpearalFactory) {
@@ -54,9 +55,9 @@ public class SpearalClientFeature implements Feature {
 		}
 		
 		// Register the message body reader/writer
-		context.register(new SpearalMessageBodyIO(spearalFactory));
+		context.register(new SpearalMessageBodyIO());
 		
-		context.register(new SpearalClientRequestFilter(spearalFactory));
+		context.register(new SpearalClientRequestFilter());
 		
 		return true;
 	}

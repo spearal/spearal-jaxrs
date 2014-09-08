@@ -26,10 +26,13 @@ import java.lang.reflect.Type;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Configuration;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Providers;
 
 import org.spearal.SpearalDecoder;
 import org.spearal.SpearalEncoder;
@@ -46,11 +49,11 @@ import org.spearal.jaxrs.impl.PartialEntityWrapper;
 @Produces(Spearal.APPLICATION_SPEARAL)
 public class SpearalMessageBodyIO implements MessageBodyWriter<Object>, MessageBodyReader<Object> {
 	
-	private final SpearalFactory factory;
+	@Context
+	private Configuration configuration;
 	
-	public SpearalMessageBodyIO(SpearalFactory factory) {
-		this.factory = factory;
-	}
+	@Context
+	private Providers providers;
 	
 	public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
 		return PartialEntityWrapper.class == type || mediaType.equals(Spearal.APPLICATION_SPEARAL_TYPE);
@@ -69,6 +72,8 @@ public class SpearalMessageBodyIO implements MessageBodyWriter<Object>, MessageB
 			MultivaluedMap<String, Object> httpHeaders,
 			OutputStream entityStream) throws IOException, WebApplicationException {
 		
+		SpearalFactory factory = Spearal.locateFactory(configuration, providers);
+		
 		SpearalEncoder encoder = factory.newEncoder(entityStream);
 		if (obj instanceof PartialEntityWrapper) {
 			// Unwrap partial entities that may have been wrapped by Client/Container filters 
@@ -84,6 +89,8 @@ public class SpearalMessageBodyIO implements MessageBodyWriter<Object>, MessageB
 			Annotation[] annotations, MediaType mediaType,
 			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
 			throws IOException, WebApplicationException {
+		
+		SpearalFactory factory = Spearal.locateFactory(configuration, providers);
 		
 		SpearalDecoder decoder = factory.newDecoder(entityStream);
 		return decoder.readAny(genericType);
