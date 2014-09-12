@@ -26,7 +26,7 @@ import org.spearal.filter.SpearalPropertyFilterBuilder;
  * 
  * @author William DRAI
  */
-public class PartialEntityWrapper implements Serializable {
+public class SpearalEntity implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -34,7 +34,7 @@ public class PartialEntityWrapper implements Serializable {
 	private transient final SpearalPropertyFilterBuilder propertyFilter;
 	
 	
-	public PartialEntityWrapper(Object entity, SpearalPropertyFilterBuilder propertyFilter) {
+	public SpearalEntity(Object entity, SpearalPropertyFilterBuilder propertyFilter) {
 		this.entity = entity;
 		this.propertyFilter = propertyFilter;
 	}

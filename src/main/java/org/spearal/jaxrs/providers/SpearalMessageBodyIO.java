@@ -38,7 +38,7 @@ import org.spearal.SpearalDecoder;
 import org.spearal.SpearalEncoder;
 import org.spearal.SpearalFactory;
 import org.spearal.jaxrs.Spearal;
-import org.spearal.jaxrs.impl.PartialEntityWrapper;
+import org.spearal.jaxrs.impl.SpearalEntity;
 
 /**
  * JAX-RS message body reader/writer 
@@ -56,7 +56,7 @@ public class SpearalMessageBodyIO implements MessageBodyWriter<Object>, MessageB
 	private Providers providers;
 	
 	public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-		return PartialEntityWrapper.class == type || mediaType.equals(Spearal.APPLICATION_SPEARAL_TYPE);
+		return SpearalEntity.class == type || mediaType.equals(Spearal.APPLICATION_SPEARAL_TYPE);
 	}
 	
 	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -72,13 +72,15 @@ public class SpearalMessageBodyIO implements MessageBodyWriter<Object>, MessageB
 			MultivaluedMap<String, Object> httpHeaders,
 			OutputStream entityStream) throws IOException, WebApplicationException {
 		
+		httpHeaders.putSingle("Content-Type", Spearal.APPLICATION_SPEARAL);
+		
 		SpearalFactory factory = Spearal.locateFactory(configuration, providers);
 		
 		SpearalEncoder encoder = factory.newEncoder(entityStream);
-		if (obj instanceof PartialEntityWrapper) {
+		if (obj instanceof SpearalEntity) {
 			// Unwrap partial entities that may have been wrapped by Client/Container filters 
 			// and apply property filters
-			PartialEntityWrapper ew = (PartialEntityWrapper)obj;
+			SpearalEntity ew = (SpearalEntity)obj;
 			ew.getPropertyFilter().apply(encoder.getPropertyFilter());
 			obj = ew.getEntity();
 		}

@@ -30,7 +30,7 @@ import javax.ws.rs.ext.Providers;
 import org.spearal.SpearalFactory;
 import org.spearal.filter.SpearalPropertyFilterBuilder;
 import org.spearal.jaxrs.Spearal;
-import org.spearal.jaxrs.impl.PartialEntityWrapper;
+import org.spearal.jaxrs.impl.SpearalEntity;
 
 /**
  * JAX-RS server response filter
@@ -54,6 +54,7 @@ public class SpearalContainerResponseFilter implements ContainerResponseFilter {
 		
 		// Wrap entity to store property filters
 		SpearalPropertyFilterBuilder serverPropertyFilters = SpearalPropertyFilterBuilder.fromHeaders(factory.getContext(), headers);
-		responseContext.setEntity(new PartialEntityWrapper(responseContext.getEntity(), serverPropertyFilters));
+		if (serverPropertyFilters != null)
+			responseContext.setEntity(new SpearalEntity(responseContext.getEntity(), serverPropertyFilters));
 	}
 }

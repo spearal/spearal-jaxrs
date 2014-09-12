@@ -30,7 +30,7 @@ import javax.ws.rs.ext.Providers;
 import org.spearal.SpearalFactory;
 import org.spearal.filter.SpearalPropertyFilterBuilder;
 import org.spearal.jaxrs.Spearal;
-import org.spearal.jaxrs.impl.PartialEntityWrapper;
+import org.spearal.jaxrs.impl.SpearalEntity;
 
 /**
  * JAX-RS client request filter
@@ -49,7 +49,7 @@ public class SpearalClientRequestFilter implements ClientRequestFilter {
 		// Wrap entity to store property filters
 		SpearalPropertyFilterBuilder clientPropertyFilterBuilder = (SpearalPropertyFilterBuilder)requestContext.getProperty(Spearal.PROPERTY_FILTER_CLIENT);
 		if (clientPropertyFilterBuilder != null)
-			requestContext.setEntity(new PartialEntityWrapper(requestContext.getEntity(), clientPropertyFilterBuilder));
+			requestContext.setEntity(new SpearalEntity(requestContext.getEntity(), clientPropertyFilterBuilder));
 		
 		// Transmit server property filters as http header
 		SpearalPropertyFilterBuilder serverPropertyFilterBuilder = (SpearalPropertyFilterBuilder)requestContext.getProperty(Spearal.PROPERTY_FILTER_SERVER);
