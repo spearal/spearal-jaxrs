@@ -17,12 +17,14 @@
  */
 package org.spearal.jaxrs.cdi;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.Produces;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
+import org.spearal.DefaultSpearalFactory;
 import org.spearal.SpearalFactory;
 import org.spearal.jaxrs.Spearal;
 
@@ -38,9 +40,17 @@ public class SpearalFactoryContextResolver implements ContextResolver<SpearalFac
 	@Inject
 	private Instance<SpearalFactory> spearalFactory;
 	
+	private SpearalFactory defaultFactory;
+	
+	@PostConstruct
+	private void initDefaultSpearalFactory() {
+		if (spearalFactory == null || spearalFactory.isUnsatisfied())
+			this.defaultFactory = new DefaultSpearalFactory();
+	}
+	
 	public SpearalFactory getContext(Class<?> clazz) {
 		if (clazz.equals(SpearalFactory.class) && !spearalFactory.isUnsatisfied())
 			return spearalFactory.get();
-		return null;
+		return defaultFactory;
 	}
 }
