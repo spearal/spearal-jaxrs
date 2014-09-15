@@ -34,10 +34,11 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Providers;
 
+import org.spearal.Spearal;
 import org.spearal.SpearalDecoder;
 import org.spearal.SpearalEncoder;
 import org.spearal.SpearalFactory;
-import org.spearal.jaxrs.Spearal;
+import org.spearal.jaxrs.SpearalJaxrs;
 import org.spearal.jaxrs.impl.SpearalEntity;
 
 /**
@@ -56,11 +57,11 @@ public class SpearalMessageBodyIO implements MessageBodyWriter<Object>, MessageB
 	private Providers providers;
 	
 	public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-		return SpearalEntity.class == type || mediaType.equals(Spearal.APPLICATION_SPEARAL_TYPE);
+		return SpearalEntity.class == type || mediaType.equals(SpearalJaxrs.APPLICATION_SPEARAL_TYPE);
 	}
 	
 	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-		return mediaType.equals(Spearal.APPLICATION_SPEARAL_TYPE);
+		return mediaType.equals(SpearalJaxrs.APPLICATION_SPEARAL_TYPE);
 	}
 	
 	public long getSize(Object obj, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -74,7 +75,7 @@ public class SpearalMessageBodyIO implements MessageBodyWriter<Object>, MessageB
 		
 		httpHeaders.putSingle("Content-Type", Spearal.APPLICATION_SPEARAL);
 		
-		SpearalFactory factory = Spearal.locateFactory(configuration, providers);
+		SpearalFactory factory = SpearalJaxrs.locateFactory(configuration, providers);
 		
 		SpearalEncoder encoder = factory.newEncoder(entityStream);
 		if (obj instanceof SpearalEntity) {
@@ -92,7 +93,7 @@ public class SpearalMessageBodyIO implements MessageBodyWriter<Object>, MessageB
 			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
 			throws IOException, WebApplicationException {
 		
-		SpearalFactory factory = Spearal.locateFactory(configuration, providers);
+		SpearalFactory factory = SpearalJaxrs.locateFactory(configuration, providers);
 		
 		SpearalDecoder decoder = factory.newDecoder(entityStream);
 		return decoder.readAny(genericType);

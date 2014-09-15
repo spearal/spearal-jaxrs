@@ -25,8 +25,8 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
 import org.spearal.DefaultSpearalFactory;
+import org.spearal.Spearal;
 import org.spearal.SpearalFactory;
-import org.spearal.jaxrs.Spearal;
 
 /**
  * CDI resolver for SpearalFactory 

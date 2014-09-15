@@ -27,9 +27,10 @@ import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.ext.Providers;
 
+import org.spearal.Spearal;
 import org.spearal.SpearalFactory;
 import org.spearal.filter.SpearalPropertyFilterBuilder;
-import org.spearal.jaxrs.Spearal;
+import org.spearal.jaxrs.SpearalJaxrs;
 import org.spearal.jaxrs.impl.SpearalEntity;
 
 /**
@@ -47,16 +48,16 @@ public class SpearalClientRequestFilter implements ClientRequestFilter {
 	
 	public void filter(ClientRequestContext requestContext) throws IOException {
 		// Wrap entity to store property filters
-		SpearalPropertyFilterBuilder clientPropertyFilterBuilder = (SpearalPropertyFilterBuilder)requestContext.getProperty(Spearal.PROPERTY_FILTER_CLIENT);
+		SpearalPropertyFilterBuilder clientPropertyFilterBuilder = (SpearalPropertyFilterBuilder)requestContext.getProperty(SpearalJaxrs.PROPERTY_FILTER_CLIENT);
 		if (clientPropertyFilterBuilder != null)
 			requestContext.setEntity(new SpearalEntity(requestContext.getEntity(), clientPropertyFilterBuilder));
 		
 		// Transmit server property filters as http header
-		SpearalPropertyFilterBuilder serverPropertyFilterBuilder = (SpearalPropertyFilterBuilder)requestContext.getProperty(Spearal.PROPERTY_FILTER_SERVER);
+		SpearalPropertyFilterBuilder serverPropertyFilterBuilder = (SpearalPropertyFilterBuilder)requestContext.getProperty(SpearalJaxrs.PROPERTY_FILTER_SERVER);
 		if (serverPropertyFilterBuilder == null)
 			return;
 		
-		SpearalFactory factory = Spearal.locateFactory(configuration, providers);
+		SpearalFactory factory = SpearalJaxrs.locateFactory(configuration, providers);
 		
 		List<Object> serverPropertyFilterHeaders = new ArrayList<Object>(serverPropertyFilterBuilder.toHeaders(factory.getContext()));
 		requestContext.getHeaders().put(Spearal.PROPERTY_FILTER_HEADER, serverPropertyFilterHeaders);
