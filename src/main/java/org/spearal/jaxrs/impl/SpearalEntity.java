@@ -22,7 +22,8 @@ import java.io.Serializable;
 import org.spearal.filter.SpearalPropertyFilterBuilder;
 
 /**
- * Internal wrapper to transmit property filters between request/response filters and message body reader/writer
+ * Internal wrapper to transmit property filters between request/response filters
+ * and message body reader/writer.
  * 
  * @author William DRAI
  */
