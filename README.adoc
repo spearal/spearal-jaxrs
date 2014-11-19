@@ -118,9 +118,9 @@ public List<Hello> findAll() {
 
 If you enable CDI for your application (by simply adding an empty file in `META-INF/beans.xml`), a default `ContextResolver`
 will be automatically registered and will take any bean of type `SpearalFactory` as configuration for Spearal.
-If no such bean is found, it registers a default configuration `DefaultSpearalFactory`.
+If no such bean is found, it registers a default configuration of type `DefaultSpearalFactory`.
 
-As a summary when CDI is enabled, Spearal is autoconfigured with sensible defaults.
+To summarize when using CDI, you just have to put the Spearal-JAXRS jar in your project to enable Spearal.
 
 
 === Client-side
