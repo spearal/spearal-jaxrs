@@ -1,0 +1,190 @@
+Spearal JAX-RS
+==============
+
+## What is Spearal?
+
+Spearal is a compact binary format for exchanging arbitrary complex data between various endpoints such as Java EE, JavaScript / HTML, Android and iOS applications.
+
+Spearal-JAXRS is an extension of Spearal-Java which implements the necessary body reader/writer providers to use Spearal in JAX-RS applications.
+
+## How to get and build the project?
+
+First, you need to get, build and install Spearal-Java:
+
+````sh
+$ git clone https://github.com/spearal/spearal-java.git
+$ cd spearal-java
+$ ./gradlew install
+````
+
+Then, you can build Spearal JAX-RS:
+
+````sh
+$ cd ..
+$ git clone https://github.com/spearal/spearal-jaxrs.git
+$ cd spearal-jaxrs
+$ ./gradlew build
+````
+
+The built library can then be found in the `build/libs/` directory.
+
+## How to use the library?
+
+=== Server-side
+
+The library is available in the Maven central repository, so with Maven or Gradle you simply have to reference 
+the dependency on the library in your build system:
+
+[source,xml]
+.Maven
+----
+<dependency>
+	<groupId>org.spearal</groupId>
+	<artifactId>spearal-java</artifactId>
+	<version>0.2.0</version>
+</dependency>
+<dependency>
+	<groupId>org.spearal</groupId>
+	<artifactId>spearal-jaxrs</artifactId>
+	<version>0.2.0</version>
+</dependency>
+----
+
+[source,java]
+.Gradle
+----
+compile 'org.spearal:spearal-java:0.2.0'
+compile 'org.spearal:spearal-jaxrs:0.2.0'
+----
+
+==== Using plain JAX-RS
+
+Spearal-JAXRS can be configured by defining a `SpearalFactory` in the main application and expose it to the 
+JAX-RS runtime with a `ContextResolver`:
+
+[source,java]
+----
+@ApplicationPath("/myapp")
+public class MyApplication extends Application {
+	
+    private final SpearalFactory spearalFactory;
+	
+    public HelloApplication() {
+        spearalFactory = new DefaultSpearalFactory()
+    }
+	
+    public SpearalFactory getSpearalFactory() {
+        return spearalFactory;
+    }
+}
+----
+
+[source,java]
+----
+@Provider
+@Produces({ Spearal.APPLICATION_SPEARAL })
+public class MySpearalFactoryResolver implements ContextResolver<SpearalFactory> {
+	
+    @Context
+    private Application application;
+	
+    @Override
+    public SpearalFactory getContext(Class<?> clazz) {
+        if (clazz.equals(SpearalFactory.class))
+            return ((MyApplication)application).getSpearalFactory();
+        return null;
+    }
+}
+----
+
+Now the Spearal encoder/decoder are registered and will be automatically picked up when the request or 
+response requires the content type `application/spearal`.
+
+You can also force the usage of Spearal by specifying the `@Produces` or `@Consumes` content-type in the resource itself:
+
+[source,java]
+----
+@GET
+@Produces(Spearal.APPLICATION_SPEARAL)
+@Path("/list")
+public List<Hello> findAll() {
+    ...
+}
+----
+
+==== Using CDI
+
+If you enable CDI for your application (by simply adding an empty file in `META-INF/beans.xml`), a default `ContextResolver`
+will be automatically registered and will take any bean of type `SpearalFactory` as configuration for Spearal.
+If no such bean is found, it registers a default configuration `DefaultSpearalFactory`.
+
+As a summary when CDI is enabled, Spearal is autoconfigured with sensible defaults.
+
+
+=== Client-side
+
+You can simply configure a JAX-RS client to use Spearal by adding the Spearal client feature:
+
+[source,java]
+----
+ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+Client client = clientBuilder
+    .register(SpearalClientFeature.class)
+    .build();
+----
+
+Any configuration that could be applied with the method `SpearalFactory.configure()` can be simply added to the JAX-RS client with `register`.
+
+[source,java]
+----
+ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+Client client = clientBuilder
+    .register(new ClientAliasStrategy(".client"))
+    .register(new SimpleUnfilterablePropertiesProvider(Hello.class, "id"))
+    .register(SpearalClientFeature.class)
+    .build();
+----
+
+Then to call a resource:
+
+[source,java]
+----
+WebTarget saveTarget = client.target("http://localhost:8080/hello/app/hello");
+Hello hello = new Hello("test");
+Hello saved = saveTarget
+    .request(SpearalJaxrs.APPLICATION_SPEARAL_TYPE)
+    .buildPost(Entity.entity(hello, SpearalJaxrs.APPLICATION_SPEARAL_TYPE))
+    .invoke(Hello.class);
+----
+
+Or fetch data from a resource:
+
+[source,java]
+----
+WebTarget findTarget = client.target("http://localhost:8080/hello/app/hello/list");
+List<Hello> resultList = findTarget
+    .request(SpearalJaxrs.APPLICATION_SPEARAL_TYPE)
+    .buildGet()
+    .invoke(new GenericType<List<Hello>>() {});
+----
+
+==== Using property filters
+
+You can set property filters by setting the request properties `SperalJaxrs.PROPERTY_FILTER_CLIENT` and `SperalJaxrs.PROPERTY_FILTER_SERVER`.
+
+For example if you want to fetch only the property `name` of the object `Hello`:
+
+[source,java]
+----
+WebTarget findTarget = client.target("http://localhost:8080/hello/app/hello/list");
+List<Hello> resultList = findTarget
+    .request(SpearalJaxrs.APPLICATION_SPEARAL_TYPE)
+    .property(SpearalJaxrs.PROPERTY_FILTER_SERVER, 
+        SpearalPropertyFilterBuilder.of(Hello.class, "name"))
+    .buildGet()
+    .invoke(new GenericType<List<Hello>>() {});
+----
+
+The client filter will be applied during serialization of the client object to the server. The server filter
+will be applied during serialization of the server result from the server to the client. This second one is converted as a String and passed
+to the server as HTTP header. It is then transmitted from the request to the response handler by a JAX-RS `ContainerResponseFilter`.
