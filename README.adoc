@@ -6,29 +6,6 @@ Spearal is a compact binary format for exchanging arbitrary complex data between
 
 Spearal-JAXRS is an extension of Spearal-Java which implements the necessary body reader/writer providers to use Spearal in JAX-RS applications.
 
-== How to get and build the project?
-
-First, you need to get, build and install Spearal-Java:
-
-[source,bash]
-----
-$ git clone https://github.com/spearal/spearal-java.git
-$ cd spearal-java
-$ ./gradlew install
-----
-
-Then, you can build Spearal JAX-RS:
-
-[source,bash]
-----
-$ cd ..
-$ git clone https://github.com/spearal/spearal-jaxrs.git
-$ cd spearal-jaxrs
-$ ./gradlew build
-----
-
-The library can then be found in the `build/libs` directory.
-
 
 == How to use the library?
 
@@ -43,21 +20,24 @@ the dependency on the library in your build system:
 <dependency>
 	<groupId>org.spearal</groupId>
 	<artifactId>spearal-java</artifactId>
-	<version>0.2.0</version>
+	<version>${spearal.version}</version>
 </dependency>
 <dependency>
 	<groupId>org.spearal</groupId>
 	<artifactId>spearal-jaxrs</artifactId>
-	<version>0.2.0</version>
+	<version>${spearal.version}</version>
 </dependency>
 ----
 
 [source,java]
 .Gradle
 ----
-compile 'org.spearal:spearal-java:0.2.0'
-compile 'org.spearal:spearal-jaxrs:0.2.0'
+compile 'org.spearal:spearal-java:${spearalVersion}'
+compile 'org.spearal:spearal-jaxrs:${spearalVersion}'
 ----
+
+In any other case, just download the https://github.com/spearal/spearal-java/releases[Spearal-Java] and https://github.com/spearal/spearal-jaxrs/releases[Spearal-JAXRS] jars from github and add them to your classpath.
+
 
 ==== Using plain JAX-RS
 
@@ -190,3 +170,27 @@ List<Hello> resultList = findTarget
 The client filter will be applied during serialization of the client object to the server. The server filter
 will be applied during serialization of the server result from the server to the client. This second one is converted as a String and passed
 to the server as HTTP header. It is then transmitted from the request to the response handler by a JAX-RS `ContainerResponseFilter`.
+
+
+== How to get and build the project?
+
+First, you need to get, build and install Spearal-Java:
+
+[source,bash]
+----
+$ git clone https://github.com/spearal/spearal-java.git
+$ cd spearal-java
+$ ./gradlew install
+----
+
+Then, you can build Spearal JAX-RS:
+
+[source,bash]
+----
+$ cd ..
+$ git clone https://github.com/spearal/spearal-jaxrs.git
+$ cd spearal-jaxrs
+$ ./gradlew build
+----
+
+The library can then be found in the `build/libs` directory.
